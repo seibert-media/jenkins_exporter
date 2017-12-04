@@ -1,0 +1,174 @@
+workspace:
+  base: /srv/app
+  path: src/github.com/exporters/jenkins_exporter
+
+branches:
+  - master
+
+pipeline:
+  restore:
+    image: plugins/s3-cache:1
+    pull: true
+    secrets: [ cache_s3_endpoint, cache_s3_access_key, cache_s3_secret_key ]
+    restore: true
+    when:
+      local: false
+
+  prepare:
+    image: webhippie/golang:edge
+    pull: true
+    environment:
+      - GOPATH=/srv/app
+    commands:
+      - make clean
+      - make retool
+
+  vet:
+    image: webhippie/golang:edge
+    pull: true
+    group: testing
+    environment:
+      - GOPATH=/srv/app
+    commands:
+      - make vet
+
+  check:
+    image: webhippie/golang:edge
+    pull: true
+    group: testing
+    environment:
+      - GOPATH=/srv/app
+    commands:
+      - make megacheck
+
+  lint:
+    image: webhippie/golang:edge
+    pull: true
+    group: testing
+    environment:
+      - GOPATH=/srv/app
+    commands:
+      - make lint
+
+  test:
+    image: webhippie/golang:edge
+    pull: true
+    group: testing
+    environment:
+      - GOPATH=/srv/app
+    commands:
+      - make test
+
+  build:
+    image: webhippie/golang:edge
+    pull: true
+    group: testing
+    environment:
+      - GOPATH=/srv/app
+    commands:
+      - make build
+
+  rebuild:
+    image: plugins/s3-cache:1
+    pull: true
+    secrets: [ cache_s3_endpoint, cache_s3_access_key, cache_s3_secret_key ]
+    rebuild: true
+    mount:
+      - _tools/bin
+      - _tools/pkg
+    when:
+      local: false
+      event: [ push ]
+      branch: master
+
+  flush:
+    image: plugins/s3-cache:1
+    pull: true
+    secrets: [ cache_s3_endpoint, cache_s3_access_key, cache_s3_secret_key ]
+    flush: true
+    flush_age: 14
+    when:
+      local: false
+      event: [ push ]
+      branch: master
+
+  amd64:
+    image: plugins/docker:17.05
+    pull: true
+    group: docker
+    secrets: [ docker_username, docker_password ]
+    repo: exporters/jenkins
+    auto_tag: true
+    when:
+      event: [push, tag]
+      branch: master
+
+  i386:
+    image: plugins/docker:17.05
+    pull: true
+    group: docker
+    secrets: [ docker_username, docker_password ]
+    repo: exporters/jenkins
+    dockerfile: Dockerfile.i386
+    auto_tag: true
+    auto_tag_suffix: i386
+    when:
+      event: [push, tag]
+      branch: master
+
+  arm:
+    image: plugins/docker:17.05
+    pull: true
+    group: docker
+    secrets: [ docker_username, docker_password ]
+    repo: exporters/jenkins
+    dockerfile: Dockerfile.arm
+    auto_tag: true
+    auto_tag_suffix: arm
+    when:
+      event: [push, tag]
+      branch: master
+
+  arm64:
+    image: plugins/docker:17.05
+    pull: true
+    group: docker
+    secrets: [ docker_username, docker_password ]
+    repo: exporters/jenkins
+    dockerfile: Dockerfile.arm64
+    auto_tag: true
+    auto_tag_suffix: arm64
+    when:
+      event: [push, tag]
+      branch: master
+
+  microbadger:
+    image: plugins/webhook:1
+    pull: true
+    secrets:
+      - source: microbadger_token
+        target: plugin_urls
+    when:
+      event: [ push, tag ]
+      branch: master
+
+  release:
+    image: webhippie/golang:edge
+    pull: true
+    environment:
+      - GOPATH=/srv/app
+    commands:
+      - make release
+    when:
+      event: [ tag ]
+      branch: [ master ]
+
+  github:
+    image: plugins/github-release:1
+    pull: true
+    secrets: [ github_token ]
+    files:
+      - dist/*
+    when:
+      event: [ tag ]
+      branch: master

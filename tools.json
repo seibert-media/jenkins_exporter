@@ -1,0 +1,25 @@
+{
+  "Tools": [
+    {
+      "Repository": "github.com/mitchellh/gox",
+      "Commit": "c9740af9c6574448fd48eb30a71f964014c7a837"
+    },
+    {
+      "Repository": "github.com/golang/dep/cmd/dep",
+      "Commit": "b741887298d080f018512c26364b382bd13e89fe"
+    },
+    {
+      "Repository": "github.com/golang/lint/golint",
+      "Commit": "6aaf7c34af0f4c36a57e0c429bace4d706d8e931"
+    },
+    {
+      "Repository": "honnef.co/go/tools/cmd/megacheck",
+      "Commit": "376b3b58b9e4def403181ee2fd3d4cc7de8375ae"
+    },
+    {
+      "Repository": "github.com/haya14busa/goverage",
+      "Commit": "ddedefafa9038af5a93779e375d0537bb489f38f"
+    }
+  ],
+  "RetoolVersion": "1.3.5"
+}
