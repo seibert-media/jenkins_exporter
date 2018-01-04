@@ -1,6 +1,6 @@
 workspace:
   base: /srv/app
-  path: src/github.com/webhippie/jenkins_exporter
+  path: src/github.com/kwiesmueller/jenkins_exporter
 
 pipeline:
   testing:

@@ -1,5 +1,5 @@
 repository:
-    path: github.com/webhippie/jenkins_exporter
+    path: github.com/kwiesmueller/jenkins_exporter
 
 build:
     binaries:
