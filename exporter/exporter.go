@@ -2,6 +2,7 @@ package exporter
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -23,8 +24,13 @@ var (
 		},
 	)
 
-	// jobColor defines a map to collect the build color codes.
-	jobColor = map[string]prometheus.Gauge{}
+	// jobSuccess defines a map to collect the build color codes.
+	jobSuccess = map[string]prometheus.Gauge{}
+
+	// jobFail defines a map to collect the build color codes.
+	jobFail = map[string]prometheus.Gauge{}
+	// jobWeather defines a map to collect the build color codes.
+	jobWeather = map[string]prometheus.Gauge{}
 )
 
 // init just defines the initial state of the exports.
@@ -53,7 +59,13 @@ type Exporter struct {
 func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- isUp.Desc()
 
-	for _, metric := range jobColor {
+	for _, metric := range jobSuccess {
+		ch <- metric.Desc()
+	}
+	for _, metric := range jobFail {
+		ch <- metric.Desc()
+	}
+	for _, metric := range jobWeather {
 		ch <- metric.Desc()
 	}
 }
@@ -74,7 +86,13 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 
 	ch <- isUp
 
-	for _, metric := range jobColor {
+	for _, metric := range jobSuccess {
+		ch <- metric
+	}
+	for _, metric := range jobFail {
+		ch <- metric
+	}
+	for _, metric := range jobWeather {
 		ch <- metric
 	}
 }
@@ -92,28 +110,53 @@ func (e *Exporter) scrape() error {
 		return fmt.Errorf("failed to fetch root data")
 	}
 
-	for _, job := range root.Jobs {
+	for _, job := range *root {
 		log.Debugf("processing %s job", job.Name)
-
-		if job.Color != "" {
-			if _, ok := jobColor[job.Key()]; ok == false {
-				jobColor[job.Key()] = prometheus.NewGauge(
-					prometheus.GaugeOpts{
-						Namespace: namespace,
-						Name:      "job_color",
-						Help:      "Color code of the Jenkins job",
-						ConstLabels: prometheus.Labels{
-							"name": job.Name,
-						},
+		jobName := strings.Replace(strings.ToLower(job.Name), " ", "_", -1)
+		if _, ok := jobSuccess[job.Key()]; ok == false {
+			jobSuccess[job.Key()] = prometheus.NewGauge(
+				prometheus.GaugeOpts{
+					Namespace: namespace,
+					Name:      "job_success",
+					Help:      "number of successful branches for job",
+					ConstLabels: prometheus.Labels{
+						"name": jobName,
 					},
-				)
-			}
-
-			color := colorToGauge(job.Color)
-			log.Debugf("setting color to %f for %s", color, job.Name)
-
-			jobColor[job.Key()].Set(colorToGauge(job.Color))
+				},
+			)
 		}
+		if _, ok := jobFail[job.Key()]; ok == false {
+			jobFail[job.Key()] = prometheus.NewGauge(
+				prometheus.GaugeOpts{
+					Namespace: namespace,
+					Name:      "job_fail",
+					Help:      "number of failed branches for job",
+					ConstLabels: prometheus.Labels{
+						"name": jobName,
+					},
+				},
+			)
+		}
+		if _, ok := jobWeather[job.Key()]; ok == false {
+			jobWeather[job.Key()] = prometheus.NewGauge(
+				prometheus.GaugeOpts{
+					Namespace: namespace,
+					Name:      "job_weather",
+					Help:      "weather for job",
+					ConstLabels: prometheus.Labels{
+						"name": jobName,
+					},
+				},
+			)
+		}
+
+		log.Debugf("setting success to %d for %s", job.Success, job.Name)
+		log.Debugf("setting failed to %d for %s", job.Fail, job.Name)
+		log.Debugf("setting weather to %d for %s", job.Weather, job.Name)
+
+		jobSuccess[job.Key()].Set(float64(job.Success))
+		jobFail[job.Key()].Set(float64(job.Fail))
+		jobWeather[job.Key()].Set(float64(job.Weather))
 	}
 
 	isUp.Set(1)
