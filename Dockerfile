@@ -1,5 +1,5 @@
 FROM quay.io/prometheus/busybox:latest
-MAINTAINER Thomas Boerger <thomas@webhippie.de>
+MAINTAINER Kevin Wiesmueller <kwiesmueller@seibert-media.net>
 
 COPY jenkins_exporter /bin/jenkins_exporter
 
