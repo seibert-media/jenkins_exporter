@@ -1,16 +1,16 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"net/http"
 	"os"
 
+	flag "github.com/bborbe/flagenv"
+	"github.com/kwiesmueller/jenkins_exporter/exporter"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/log"
 	"github.com/prometheus/common/version"
-	"github.com/kwiesmueller/jenkins_exporter/exporter"
 
 	_ "net/http/pprof"
 )
@@ -20,19 +20,19 @@ var (
 	showVersion = flag.Bool("version", false, "Print version information")
 
 	// listenAddress defines the local address binding for the server.
-	listenAddress = flag.String("web.listen-address", ":9103", "Address to listen on for web interface and telemetry")
+	listenAddress = flag.String("web-listen-address", ":9103", "Address to listen on for web interface and telemetry")
 
 	// metricsPath defines the path to access the metrics.
-	metricsPath = flag.String("web.telemetry-path", "/metrics", "Path to expose metrics of the exporter")
+	metricsPath = flag.String("web-telemetry-path", "/metrics", "Path to expose metrics of the exporter")
 
 	// address defines the URL to access the Jenkins instance.
-	address = flag.String("jenkins.address", "", "Address where to reach Jenkins")
+	address = flag.String("jenkins-address", "", "Address where to reach Jenkins")
 
 	// username defines the username for the Jenkins authentication.
-	username = flag.String("jenkins.username", "", "Username to authenticate on Jenkins")
+	username = flag.String("jenkins-username", "", "Username to authenticate on Jenkins")
 
 	// password defines the password for the Jenkins authentication.
-	password = flag.String("jenkins.password", "", "Password to authenticate on Jenkins")
+	password = flag.String("jenkins-password", "", "Password to authenticate on Jenkins")
 )
 
 // init registers the collector version.

@@ -29,6 +29,10 @@ build: promu
 	@echo ">> building binaries"
 	@$(PROMU) build --prefix $(PREFIX)
 
+build-for-docker: promu
+	@echo ">> building binaries"
+	GOBIN=$(GOPATH)/bin CGO_ENABLED=0 GOOS=linux go build -i -o jenkins_exporter -a -installsuffix cgo main.go
+
 tarball: promu
 	@echo ">> building release tarball"
 	@$(PROMU) tarball $(BIN_DIR) --prefix $(PREFIX)
@@ -36,6 +40,10 @@ tarball: promu
 docker:
 	@echo ">> building docker image"
 	@docker build -t "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" .
+
+upload:
+	docker tag jenkins-exporter:master quay.io/finch/jenkins-exporter:master 
+	docker push quay.io/finch/jenkins-exporter
 
 promu:
 	@which promu > /dev/null; if [ $$? -ne 0 ]; then \

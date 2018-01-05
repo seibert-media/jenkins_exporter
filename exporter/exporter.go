@@ -2,7 +2,6 @@ package exporter
 
 import (
 	"fmt"
-	"strings"
 	"sync"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -112,7 +111,8 @@ func (e *Exporter) scrape() error {
 
 	for _, job := range *root {
 		log.Debugf("processing %s job", job.Name)
-		jobName := strings.Replace(strings.ToLower(job.Name), " ", "_", -1)
+		jobName := job.Name
+		//jobName := strings.Replace(strings.ToLower(job.Name), " ", "_", -1)
 		if _, ok := jobSuccess[job.Key()]; ok == false {
 			jobSuccess[job.Key()] = prometheus.NewGauge(
 				prometheus.GaugeOpts{
