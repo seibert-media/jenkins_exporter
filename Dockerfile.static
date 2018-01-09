@@ -1,0 +1,7 @@
+FROM quay.io/prometheus/busybox:latest
+MAINTAINER //SEIBERT/MEDIA GmbH <docker@seibert-media.net>
+
+COPY ./build/ /
+
+EXPOSE 9103
+ENTRYPOINT ["/exporter"]
