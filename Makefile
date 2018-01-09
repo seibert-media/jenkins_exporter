@@ -42,8 +42,8 @@ docker:
 	@docker build -t "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" .
 
 upload:
-	docker tag jenkins-exporter:master quay.io/finch/jenkins-exporter:master 
-	docker push quay.io/finch/jenkins-exporter
+	docker tag jenkins-exporter:master quay.io/seibertmedia/jenkins-exporter:master 
+	docker push quay.io/seibertmedia/jenkins-exporter
 
 promu:
 	@which promu > /dev/null; if [ $$? -ne 0 ]; then \
