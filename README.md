@@ -1,8 +1,8 @@
 # Jenkins Exporter
 
-[![Build Status](http://github.dronehippie.de/api/badges/kwiesmueller/jenkins_exporter/status.svg)](http://github.dronehippie.de/kwiesmueller/jenkins_exporter)
-[![Go Doc](https://godoc.org/github.com/kwiesmueller/jenkins_exporter?status.svg)](http://godoc.org/github.com/kwiesmueller/jenkins_exporter)
-[![Go Report](http://goreportcard.com/badge/github.com/kwiesmueller/jenkins_exporter)](http://goreportcard.com/report/github.com/kwiesmueller/jenkins_exporter)
+[![Build Status](http://github.dronehippie.de/api/badges/seibert-media/jenkins_exporter/status.svg)](http://github.dronehippie.de/seibert-media/jenkins_exporter)
+[![Go Doc](https://godoc.org/github.com/seibert-media/jenkins_exporter?status.svg)](http://godoc.org/github.com/seibert-media/jenkins_exporter)
+[![Go Report](http://goreportcard.com/badge/github.com/seibert-media/jenkins_exporter)](http://goreportcard.com/report/github.com/seibert-media/jenkins_exporter)
 [![](https://images.microbadger.com/badges/image/tboerger/jenkins-exporter.svg)](http://microbadger.com/images/tboerger/jenkins-exporter "Get your own image badge on microbadger.com")
 [![Join the chat at https://gitter.im/webhippie/general](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/webhippie/general)
 
@@ -40,11 +40,11 @@ Usage of /bin/jenkins_exporter:
 
 ## Development
 
-Make sure you have a working Go environment, for further reference or a guide take a look at the [install instructions](http://golang.org/doc/install.html). It is also possible to just simply execute the `go get github.com/kwiesmueller/jenkins_exporter` command, but we prefer to use our `Makefile`:
+Make sure you have a working Go environment, for further reference or a guide take a look at the [install instructions](http://golang.org/doc/install.html). It is also possible to just simply execute the `go get github.com/seibert-media/jenkins_exporter` command, but we prefer to use our `Makefile`:
 
 ```bash
-go get -d github.com/kwiesmueller/jenkins_exporter
-cd $GOPATH/src/github.com/kwiesmueller/jenkins_exporter
+go get -d github.com/seibert-media/jenkins_exporter
+cd $GOPATH/src/github.com/seibert-media/jenkins_exporter
 make test build
 
 ./jenkins_exporter -h

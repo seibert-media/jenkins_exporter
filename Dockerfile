@@ -1,5 +1,5 @@
 FROM quay.io/prometheus/busybox:latest
-MAINTAINER Kevin Wiesmueller <kwiesmueller@seibert-media.net>
+MAINTAINER //SEIBERT/MEDIA GmbH <docker@seibert-media.net>
 
 COPY jenkins_exporter /bin/jenkins_exporter
 

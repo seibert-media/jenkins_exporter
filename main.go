@@ -6,11 +6,11 @@ import (
 	"os"
 
 	flag "github.com/bborbe/flagenv"
-	"github.com/kwiesmueller/jenkins_exporter/exporter"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/log"
 	"github.com/prometheus/common/version"
+	"github.com/seibert-media/jenkins_exporter/exporter"
 
 	_ "net/http/pprof"
 )
