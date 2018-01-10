@@ -1,6 +1,7 @@
 package exporter
 
 import (
+	"strconv"
 	"sync"
 
 	"github.com/pkg/errors"
@@ -23,11 +24,26 @@ var (
 			Help:      "Check if Jenkins response can be processed",
 		},
 	)
+	queueLength = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Namespace: namespace,
+			Name:      "queueLength",
+			Help:      "Amount of items in queue",
+		},
+	)
+	stuckBuilds = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Namespace: namespace,
+			Name:      "stuckBuilds",
+			Help:      "Amount of items stuck in queue",
+		},
+	)
 
 	jobSuccess       = map[string]prometheus.Gauge{}
 	jobFail          = map[string]prometheus.Gauge{}
 	jobWeather       = map[string]prometheus.Gauge{}
 	jobLegacyWeather = map[string]prometheus.Gauge{}
+	jobInQueue       = map[string]prometheus.Gauge{}
 	jobColor         = map[string]map[string]prometheus.Gauge{}
 )
 
@@ -56,6 +72,8 @@ type Exporter struct {
 // Describe defines the metric descriptions for Prometheus.
 func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- isUp.Desc()
+	ch <- queueLength.Desc()
+	ch <- stuckBuilds.Desc()
 
 	for _, metric := range jobSuccess {
 		ch <- metric.Desc()
@@ -67,6 +85,9 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 		ch <- metric.Desc()
 	}
 	for _, metric := range jobLegacyWeather {
+		ch <- metric.Desc()
+	}
+	for _, metric := range jobInQueue {
 		ch <- metric.Desc()
 	}
 	for _, metric := range jobColor {
@@ -91,6 +112,8 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	ch <- isUp
+	ch <- queueLength
+	ch <- stuckBuilds
 
 	for _, metric := range jobSuccess {
 		ch <- metric
@@ -102,6 +125,9 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		ch <- metric
 	}
 	for _, metric := range jobLegacyWeather {
+		ch <- metric
+	}
+	for _, metric := range jobInQueue {
 		ch <- metric
 	}
 	for _, metric := range jobColor {
@@ -118,6 +144,7 @@ func (e *Exporter) scrape() error {
 	var (
 		blueRoot   = &BlueRoot{}
 		legacyRoot = &LegacyRoot{}
+		queueRoot  = &QueueRoot{}
 	)
 
 	if err := blueRoot.Fetch(e.address, e.username, e.password); err != nil {
@@ -127,6 +154,33 @@ func (e *Exporter) scrape() error {
 	if err := legacyRoot.Fetch(e.address, e.username, e.password); err != nil {
 		log.Debugf("%s", err)
 		return errors.Wrap(err, "failed to fetch legacyRoot data")
+	}
+	if err := queueRoot.Fetch(e.address, e.username, e.password); err != nil {
+		log.Debugf("%s", err)
+		return errors.Wrap(err, "failed to fetch queueRoot data")
+	}
+
+	queueLength.Set(float64(len(queueRoot.Items)))
+	stuck := 0
+	for _, item := range queueRoot.Items {
+		if item.Stuck {
+			stuck = stuck + 1
+		}
+		jobID := strconv.Itoa(item.ID)
+		if _, ok := jobInQueue[jobID]; ok == false {
+			jobInQueue[jobID] = prometheus.NewGauge(
+				prometheus.GaugeOpts{
+					Namespace: namespace,
+					Name:      "job_in_queue",
+					Help:      "amount of time a job spends in queue",
+					ConstLabels: prometheus.Labels{
+						"id": jobID,
+					},
+				},
+			)
+		}
+		log.Debugf("setting time in queue to %d for %s", item.InQueueSince, item.ID)
+		jobInQueue[jobID].Set(float64(item.InQueueSince))
 	}
 
 	for _, job := range *blueRoot {

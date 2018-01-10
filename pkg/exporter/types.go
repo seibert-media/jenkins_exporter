@@ -80,7 +80,46 @@ type LegacyRoot struct {
 func (r *LegacyRoot) Fetch(address, username, password string) error {
 	req, err := http.NewRequest(
 		"GET",
-		fmt.Sprintf("%s/api/json?depth=1&pretty=true&tree=jobs[name,jobs[name,color],healthReport[score]]", address),
+		fmt.Sprintf("%s/api/json?depth=1&pretty=true&tree=jobs[name,jobs[name,color],healthReport[score]],assignedLabels[loadStatistics[queueLength[hour[latest],min[latest],sec10[latest]]]]", address),
+		nil,
+	)
+
+	if username != "" && password != "" {
+		req.SetBasicAuth(username, password)
+	}
+
+	res, err := simpleClient().Do(req)
+
+	if err != nil {
+		return fmt.Errorf("failed to request root api. %s", err)
+	}
+
+	defer res.Body.Close()
+
+	if err := json.NewDecoder(res.Body).Decode(r); err != nil {
+		return fmt.Errorf("failed to parse root api. %s", err)
+	}
+
+	return nil
+}
+
+// QueueRoot represents the root api response from the Jenkins API.
+type QueueRoot struct {
+	Items []struct {
+		ID           int  `json:"id"`
+		InQueueSince int  `json:"inQueueSince"`
+		Blocked      bool `json:"blocked"`
+		Stuck        bool `json:"stuck"`
+		Buildable    bool `json:"buildable"`
+		Pending      bool `json:"pending"`
+	} `json:"items"`
+}
+
+// Fetch gathers the root content from the Jenkins API.
+func (r *QueueRoot) Fetch(address, username, password string) error {
+	req, err := http.NewRequest(
+		"GET",
+		fmt.Sprintf("%s/queue/api/json", address),
 		nil,
 	)
 
