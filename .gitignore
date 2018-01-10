@@ -25,7 +25,7 @@ _testmain.go
 .deps
 dependencies-stamp
 
-/.build
+/build
 /.release
 /.tarballs
 /jenkins_exporter
