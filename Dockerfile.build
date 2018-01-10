@@ -10,6 +10,7 @@ ARG NAME
 ARG COMMAND
 
 ADD ./ /go/src/${GIT_HOST}/${REPO}/${NAME}
+ADD ./.gitignore /go/src/${GIT_HOST}/${REPO}/${NAME}/
 WORKDIR /go/src/${GIT_HOST}/${REPO}/${NAME}/
 
 RUN make deps
