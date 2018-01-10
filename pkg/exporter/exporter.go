@@ -182,6 +182,8 @@ func (e *Exporter) scrape() error {
 		log.Debugf("setting time in queue to %d for %s", item.InQueueSince, item.ID)
 		jobInQueue[jobID].Set(float64(item.InQueueSince))
 	}
+	log.Debugf("setting stuck jobs to %d", stuck)
+	stuckBuilds.Set(float64(stuck))
 
 	for _, job := range *blueRoot {
 		log.Debugf("processing %s job", job.Name)
