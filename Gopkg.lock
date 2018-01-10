@@ -42,6 +42,12 @@
   revision = "c12348ce28de40eed0136aa2b644d0ee0650e56c"
 
 [[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
+
+[[projects]]
   name = "github.com/prometheus/client_golang"
   packages = [
     "prometheus",
@@ -86,6 +92,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "4860c4efd20ebf50d23babff7d94a2d3a58a5992b65230a143da2595ea9d4e28"
+  inputs-digest = "19e31a6e7dd66d414eb7301f6ce35f5db3ba6180ad86d5eb98cd2647b79d6b42"
   solver-name = "gps-cdcl"
   solver-version = 1
